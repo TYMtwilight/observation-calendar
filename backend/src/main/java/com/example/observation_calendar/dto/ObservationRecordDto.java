@@ -3,6 +3,7 @@ package com.example.observation_calendar.dto;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ObservationRecordDto {
@@ -15,5 +16,4 @@ public class ObservationRecordDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<PhotoDto> photos;
-
 }
