@@ -1,0 +1,284 @@
+openapi: 3.0.3
+info:
+  title: Observation Calendar API
+  description: 小学生向け観察記録カレンダーアプリのAPI使用（MyBatis・Lombok使用）
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http:localhost:8080/api
+    description: Development server
+  - url: https://your-app.railway.app/api
+    description: Production server
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: ユーザー登録
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: ユーザー登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: バリデーションエラー
+        '409':
+          description: ユーザー名またはメールアドレスが既に存在
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: ログイン
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref:
+                 '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: 認証失敗
+
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: プロジェクト一覧取得
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: プロジェクト一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectResponse'
+    post:
+      tags:
+        - Projects
+      summary: プロジェクト作成
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: プロジェクト作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+          pattern: '^[a-zA-Z0-9_]+'
+        email:
+          type: string
+          format: email
+          maxLength: 100
+        password:
+          type: string
+          minLength: 6
+          maxLength: 100
+        displayName:
+          type: string
+          maxLength: 100
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+
+    CreateProjectRequest:
+      type: object
+      required:
+        - title
+        - startDate
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        projectType:
+          type: string
+          enum: [plant, animal, weather, other]
+          default: plant
+
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        projectType:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ObservationRecordRequest:
+      type: object
+      required:
+        - observationDate
+      properties:
+        observationDate:
+          type: string
+          format: date
+        memo:
+          type: string
+          maxLength: 500
+        weather:
+          type: string
+          enum: [sunny, cloudy, rainy, snowy]
+        temperature:
+          type: number
+          format: decimal
+          minimum: -50.0
+          maximum: 60.0
+
+    ObservationRecordResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        projectId:
+          type: integer
+          format: int54
+        observationDate:
+          type: string
+          format: date
+        memo:
+          type: string
+        weather:
+          type: string
+        temperature:
+          type: number
+          format: decimal
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotoResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PhotoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        recordId:
+          type: integer
+          format: int64
+        cloudinaryUrl:
+          type: string
+        originalFilename:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        uploadOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
