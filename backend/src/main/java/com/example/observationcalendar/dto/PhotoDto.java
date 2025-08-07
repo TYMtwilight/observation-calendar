@@ -1,4 +1,4 @@
-package com.example.observation_calendar.dto;
+package com.example.observationcalendar.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;

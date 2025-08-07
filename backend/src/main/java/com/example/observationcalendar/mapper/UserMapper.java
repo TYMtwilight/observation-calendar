@@ -1,6 +1,6 @@
-package com.example.observation_calendar.mapper;
+package com.example.observationcalendar.mapper;
 
-import com.example.observation_calendar.dto.UserDto;
+import com.example.observationcalendar.dto.UserDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
