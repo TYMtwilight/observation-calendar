@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.observationcalendar.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="UserDto">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="email" column="email" />
+        <result property="passwordHash" column="password_hash" />
+        <result property="displayName" column="display_name" />
+        <result property="avatarUrl" column="avatar_url" />
+        <result property="isActive" column="is_active" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <!-- 共通カラム定義 -->
+    <sql id="userColumns">
+        id, username, email, password_hash, display_name, avatar_url,
+        is_active, created_at, updated_at
+    </sql>
+
+    <!-- IDでユーザーを取得 -->
+    <select id="findById" resultMap="UserResultMap">
+        SELECT <include refid="userColumns"/>
+        FROM users
+        WHERE id = #{id} AND is_active = true
+    </select>
+
+    <!-- メールアドレスでユーザーを取得 -->
+    <select id="findByEmail" resultMap="UserResultMap">
+        SELECT <include refid="userColumns"/>
+        FROM users
+        WHERE email = #{email} AND is_active = true
+    </select>
+
+    <!-- ユーザー名でユーザーを取得 -->
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT <include refid="userColumns"/>
+        FROM users
+        WHERE username = #{username} AND is_active = true
+    </select>
+
+    <!-- 全ユーザーを取得 -->
+    <select id="findAll" resultMap="UserResultMap">
+        SELECT <include refid="userColumns"/>
+        FROM users
+        WHERE is_active = true
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- ユーザーを新規作成 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (username, email, password_hash, display_name, avatar_url, is_active)
+        VALUES (#{username}, #{email}, #{passwordHash}, #{displayName}, #{avatarUrl}, #{isActive})
+    </insert>
+
+    <!-- ユーザー情報を更新 -->
+    <update id="update">
+        UPDATE users
+        SET username = #{username},
+            email = #{email},
+            display_name = #{displayName},
+            avatar_url = #{avatarUrl},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- ユーザーを論理削除 -->
+    <update id="deleteById">
+        UPDATE users
+        SET is_active = false,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- メールアドレスの存在確認 -->
+    <select id="existsByEmail" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM users
+        WHERE email = #{email} AND is_active = true
+    </select>
+
+    <!-- ユーザー名の存在確認 -->
+    <select id="existsByUsername" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM users
+        WHERE username = #{username} AND is_active = true
+    </select>
+</mapper>
