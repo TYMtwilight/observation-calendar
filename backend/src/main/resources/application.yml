@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: observation-calendar
+
+  profiles:
+    active: development
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/observation_calendar_dev
+    username: obs_user
+    password: dev_password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 15MB
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: ${JWT_SECRET:your-secret-key-change-in-production}
+
+# MyBatis??
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.observationcalendar.dto
+  configuration:
+    map-underscore-to-camel-case: true
+    use-generated-keys: true
+    default-executor-type: reuse
+    default-statement-timeout: 30
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.example.observationcalendar: DEBUG
+    com.example.observationcalendar.mapper: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+
+# ??????
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:dummy}
+    api-key: ${CLOUDINARY_API_KEY:dummy}
+    api-secret: ${CLOUDINARY_API_SECRET:dummy}
